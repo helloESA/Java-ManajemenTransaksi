@@ -116,7 +116,6 @@ public class dashboard extends javax.swing.JFrame {
         jLabel11 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         scrolPencarian1 = new javax.swing.JScrollPane();
-        tabelPencarian1 = new com.stripbandunk.jwidget.JDynamicTable();
         jToolBar1 = new javax.swing.JToolBar();
         bt_Akun = new javax.swing.JButton();
         bt_About = new javax.swing.JButton();
@@ -153,8 +152,6 @@ public class dashboard extends javax.swing.JFrame {
 
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Cari");
-
-        scrolPencarian1.setViewportView(tabelPencarian1);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -580,6 +577,5 @@ public class dashboard extends javax.swing.JFrame {
     private javax.swing.JLabel lbl_exit;
     private javax.swing.JLabel lbl_minimize;
     private javax.swing.JScrollPane scrolPencarian1;
-    private com.stripbandunk.jwidget.JDynamicTable tabelPencarian1;
     // End of variables declaration//GEN-END:variables
 }

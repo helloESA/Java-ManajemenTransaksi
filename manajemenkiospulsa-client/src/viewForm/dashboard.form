@@ -196,10 +196,6 @@
                     <Container class="javax.swing.JScrollPane" name="scrolPencarian1">
 
                       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                      <SubComponents>
-                        <Component class="com.stripbandunk.jwidget.JDynamicTable" name="tabelPencarian1">
-                        </Component>
-                      </SubComponents>
                     </Container>
                   </SubComponents>
                 </Container>
