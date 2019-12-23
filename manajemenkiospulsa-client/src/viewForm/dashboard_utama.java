@@ -9,12 +9,22 @@ import DAO.autoNumber_DAO;
 import DAO.produk_DAO;
 import DAO.transaksi_DAO;
 import DAO.userAccount_DAO;
+import ENTITY.transaksi;
+import com.stripbandunk.jwidget.JDynamicTable;
+import com.stripbandunk.jwidget.model.DynamicTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableRowSorter;
 import viewDialog.JD_Akun;
 import viewDialog.JD_InputTransaksi;
 import viewDialog.JD_Produk;
@@ -23,23 +33,21 @@ import viewDialog.JD_Produk;
  *
  * @author MohamadEsa
  */
-public class dashboard extends javax.swing.JFrame {
+public class dashboard_utama extends javax.swing.JFrame implements DocumentListener{
 
     private userAccount_DAO uA_DAO;
     private produk_DAO p_DAO;
     private transaksi_DAO t_DAO;
     private autoNumber_DAO aN_DAO;
-
+    DynamicTableModel tableModel;
+    private JDynamicTable tabelData;
+    private TableRowSorter<DynamicTableModel> sorter;
     
-    /**
-     * Creates new form dashboard
-     */
-    public dashboard() {
+    public dashboard_utama() {
         initComponents();
-        setLocationRelativeTo(null);
-        tampilkanJam();
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Set Time">    
     public final void tampilkanJam(){
         ActionListener taskPerformer = new ActionListener() {
 
@@ -77,6 +85,7 @@ public class dashboard extends javax.swing.JFrame {
         };
         new javax.swing.Timer(1000, taskPerformer).start();
     }
+    // </editor-fold>
     
     public void setuA_DAO(userAccount_DAO uA_DAO) {
         this.uA_DAO = uA_DAO;
@@ -96,9 +105,33 @@ public class dashboard extends javax.swing.JFrame {
     
     public void startSet(){
         tampilkanJam();
+        try {
+            List<transaksi> t = t_DAO.getData();
+            if(t != null){
+                tableModel = new DynamicTableModel<>(t, transaksi.class);
+                tabelData = new JDynamicTable(tableModel);
+                scrolPencarian.setViewportView(tabelData);
+                sorter = new TableRowSorter<>(tableModel);
+                tabelData.setRowSorter(sorter);
+                txt_cari.getDocument().addDocumentListener(this);
+                tabelData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                    @Override
+                    public void valueChanged(ListSelectionEvent lse) {
+                        int index = tabelData.getSelectedRow();
+                        if(index != -1){
+                            transaksi get = (transaksi) tableModel.get(tabelData.convertRowIndexToView(index));
+                            bt_Add.setEnabled(false);
+                            bt_Update.setEnabled(true);
+                            bt_Delete.setEnabled(true);
+                            bt_Refresh.setEnabled(true);
+                        }
+                    }
+                });
+            }
+        }   catch (RemoteException ex) {
+            Logger.getLogger(dashboard_utama.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -114,8 +147,10 @@ public class dashboard extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txt_cari = new javax.swing.JTextField();
         scrolPencarian1 = new javax.swing.JScrollPane();
+        scrolPencarian = new javax.swing.JScrollPane();
+        tabelPencarian = new com.stripbandunk.jwidget.JDynamicTable();
         jToolBar1 = new javax.swing.JToolBar();
         bt_Akun = new javax.swing.JButton();
         bt_About = new javax.swing.JButton();
@@ -127,9 +162,10 @@ public class dashboard extends javax.swing.JFrame {
         lbl_Pengguna = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jToolBar3 = new javax.swing.JToolBar();
+        bt_Add = new javax.swing.JButton();
         bt_Update = new javax.swing.JButton();
         bt_Delete = new javax.swing.JButton();
-        bt_Delete1 = new javax.swing.JButton();
+        bt_Refresh = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lbl_exit = new javax.swing.JLabel();
@@ -140,7 +176,6 @@ public class dashboard extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
-        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 102, 153));
 
@@ -153,18 +188,23 @@ public class dashboard extends javax.swing.JFrame {
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Cari");
 
+        scrolPencarian.setViewportView(tabelPencarian);
+
+        scrolPencarian1.setViewportView(scrolPencarian);
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(scrolPencarian1, javax.swing.GroupLayout.DEFAULT_SIZE, 1045, Short.MAX_VALUE)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(scrolPencarian1, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE))
+                        .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -173,7 +213,7 @@ public class dashboard extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scrolPencarian1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -264,12 +304,26 @@ public class dashboard extends javax.swing.JFrame {
         jToolBar3.setRollover(true);
         jToolBar3.setBorderPainted(false);
 
+        bt_Add.setForeground(new java.awt.Color(0, 0, 0));
+        bt_Add.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Add.png"))); // NOI18N
+        bt_Add.setText("TAMBAH");
+        bt_Add.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bt_Add.setMargin(new java.awt.Insets(25, 15, 25, 15));
+        bt_Add.setName(""); // NOI18N
+        bt_Add.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        bt_Add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_AddActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(bt_Add);
+
         bt_Update.setForeground(new java.awt.Color(0, 0, 0));
-        bt_Update.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Add.png"))); // NOI18N
-        bt_Update.setText("TAMBAH");
+        bt_Update.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Update.png"))); // NOI18N
+        bt_Update.setText("PERBARUI");
         bt_Update.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         bt_Update.setMargin(new java.awt.Insets(25, 15, 25, 15));
-        bt_Update.setName(""); // NOI18N
+        bt_Update.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         bt_Update.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         bt_Update.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -279,27 +333,28 @@ public class dashboard extends javax.swing.JFrame {
         jToolBar3.add(bt_Update);
 
         bt_Delete.setForeground(new java.awt.Color(0, 0, 0));
-        bt_Delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Update.png"))); // NOI18N
-        bt_Delete.setText("PERBARUI");
+        bt_Delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Delete.png"))); // NOI18N
+        bt_Delete.setText("HAPUS");
         bt_Delete.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         bt_Delete.setMargin(new java.awt.Insets(25, 15, 25, 15));
-        bt_Delete.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        bt_Delete.setVerifyInputWhenFocusTarget(false);
         bt_Delete.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        bt_Delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bt_DeleteActionPerformed(evt);
-            }
-        });
         jToolBar3.add(bt_Delete);
 
-        bt_Delete1.setForeground(new java.awt.Color(0, 0, 0));
-        bt_Delete1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Delete.png"))); // NOI18N
-        bt_Delete1.setText("HAPUS");
-        bt_Delete1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        bt_Delete1.setMargin(new java.awt.Insets(25, 15, 25, 15));
-        bt_Delete1.setVerifyInputWhenFocusTarget(false);
-        bt_Delete1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar3.add(bt_Delete1);
+        bt_Refresh.setForeground(new java.awt.Color(0, 0, 0));
+        bt_Refresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Refresh.png"))); // NOI18N
+        bt_Refresh.setText("REFRESH");
+        bt_Refresh.setFocusable(false);
+        bt_Refresh.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bt_Refresh.setMargin(new java.awt.Insets(25, 15, 25, 15));
+        bt_Refresh.setVerifyInputWhenFocusTarget(false);
+        bt_Refresh.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        bt_Refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_RefreshActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(bt_Refresh);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -314,8 +369,8 @@ public class dashboard extends javax.swing.JFrame {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
-                .addGap(108, 108, 108))
+                .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(36, 36, 36))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -496,6 +551,15 @@ public class dashboard extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_bt_ExitAccActionPerformed
 
+    private void bt_AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_AddActionPerformed
+        JD_InputTransaksi a3 = new JD_InputTransaksi(p_DAO, aN_DAO, t_DAO);
+        a3.startMode();
+    }//GEN-LAST:event_bt_AddActionPerformed
+
+    private void bt_UpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_UpdateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bt_UpdateActionPerformed
+
     private void lbl_exitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_exitMouseClicked
         System.exit(0);
     }//GEN-LAST:event_lbl_exitMouseClicked
@@ -504,57 +568,53 @@ public class dashboard extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_lbl_exitMouseEntered
 
+    private void lbl_exitMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_exitMouseExited
+        lbl_exit.setToolTipText("Keluar Aplikasi");
+    }//GEN-LAST:event_lbl_exitMouseExited
+
     private void lbl_areaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_areaMouseClicked
         if(getExtendedState() == NORMAL){
             lbl_area.setToolTipText("Perkecil");
             lbl_area.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/restore.png")));
             setExtendedState(MAXIMIZED_BOTH);
-	}
-	else{
+        }
+        else{
             lbl_area.setToolTipText("Perlebar");
             lbl_area.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/maximize.png")));
-	    setExtendedState(NORMAL);
-	}
+            setExtendedState(NORMAL);
+        }
     }//GEN-LAST:event_lbl_areaMouseClicked
 
     private void lbl_areaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_areaMouseEntered
-        
+
     }//GEN-LAST:event_lbl_areaMouseEntered
 
     private void lbl_areaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_areaMouseExited
         if(getExtendedState() == NORMAL){
             lbl_area.setToolTipText("Perlebar");
-	}
-	else{
+        }
+        else{
             lbl_area.setToolTipText("Perkecil");
-	}
+        }
     }//GEN-LAST:event_lbl_areaMouseExited
-
-    private void lbl_exitMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_exitMouseExited
-        lbl_exit.setToolTipText("Keluar Aplikasi");
-    }//GEN-LAST:event_lbl_exitMouseExited
 
     private void lbl_minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_minimizeMouseClicked
         setState(ICONIFIED);
     }//GEN-LAST:event_lbl_minimizeMouseClicked
 
-    private void bt_DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_DeleteActionPerformed
+    private void bt_RefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_RefreshActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_bt_DeleteActionPerformed
-
-    private void bt_UpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_UpdateActionPerformed
-        JD_InputTransaksi a3 = new JD_InputTransaksi(p_DAO, aN_DAO, t_DAO);
-        a3.startMode();
-    }//GEN-LAST:event_bt_UpdateActionPerformed
+    }//GEN-LAST:event_bt_RefreshActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_About;
+    private javax.swing.JButton bt_Add;
     private javax.swing.JButton bt_Akun;
     private javax.swing.JButton bt_Delete;
-    private javax.swing.JButton bt_Delete1;
     private javax.swing.JButton bt_ExitAcc;
     private javax.swing.JButton bt_Produk;
+    private javax.swing.JButton bt_Refresh;
     private javax.swing.JButton bt_ToLaporan;
     private javax.swing.JButton bt_Update;
     private javax.swing.JLabel jLabel1;
@@ -567,7 +627,6 @@ public class dashboard extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
@@ -576,6 +635,24 @@ public class dashboard extends javax.swing.JFrame {
     private javax.swing.JLabel lbl_area;
     private javax.swing.JLabel lbl_exit;
     private javax.swing.JLabel lbl_minimize;
+    private javax.swing.JScrollPane scrolPencarian;
     private javax.swing.JScrollPane scrolPencarian1;
+    private com.stripbandunk.jwidget.JDynamicTable tabelPencarian;
+    private javax.swing.JTextField txt_cari;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void insertUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent de) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

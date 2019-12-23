@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
 import viewForm.StartProgram;
-import viewForm.dashboard;
+import viewForm.dashboard_utama;
 
 /**
  *
@@ -39,7 +39,7 @@ public class ManajemenkiospulsaClient {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            Logger.getLogger(dashboard.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(dashboard_utama.class.getName()).log(Level.SEVERE, null, e);
         }
         
         
@@ -66,7 +66,8 @@ public class ManajemenkiospulsaClient {
             @Override
             public void run() {
                 
-                dashboard dash = new dashboard();
+                dashboard_utama dash = new dashboard_utama();
+                dash.setLocationRelativeTo(dash);
                 dash.setuA_DAO(uA_DAO);
                 dash.setP_DAO(p_DAO);
                 dash.setT_DAO(t_DAO);
