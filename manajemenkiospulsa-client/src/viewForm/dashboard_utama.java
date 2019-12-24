@@ -132,6 +132,12 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
             Logger.getLogger(dashboard_utama.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void reset(){
+        bt_Add.setEnabled(true);
+        bt_Update.setEnabled(false);
+        bt_Delete.setEnabled(false);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -151,6 +157,8 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
         scrolPencarian1 = new javax.swing.JScrollPane();
         scrolPencarian = new javax.swing.JScrollPane();
         tabelPencarian = new com.stripbandunk.jwidget.JDynamicTable();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jLabel12 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         bt_Akun = new javax.swing.JButton();
         bt_About = new javax.swing.JButton();
@@ -192,6 +200,11 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
 
         scrolPencarian1.setViewportView(scrolPencarian);
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih", "Status Pemesanan", "Tanggal Transaksi", "No Transaksi" }));
+
+        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel12.setText("Urutkan");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -201,7 +214,10 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(scrolPencarian1, javax.swing.GroupLayout.DEFAULT_SIZE, 1045, Short.MAX_VALUE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel12)
+                        .addGap(47, 47, 47)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -213,7 +229,9 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scrolPencarian1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -321,6 +339,7 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
         bt_Update.setForeground(new java.awt.Color(0, 0, 0));
         bt_Update.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Update.png"))); // NOI18N
         bt_Update.setText("PERBARUI");
+        bt_Update.setEnabled(false);
         bt_Update.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         bt_Update.setMargin(new java.awt.Insets(25, 15, 25, 15));
         bt_Update.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -335,6 +354,7 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
         bt_Delete.setForeground(new java.awt.Color(0, 0, 0));
         bt_Delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Delete.png"))); // NOI18N
         bt_Delete.setText("HAPUS");
+        bt_Delete.setEnabled(false);
         bt_Delete.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         bt_Delete.setMargin(new java.awt.Insets(25, 15, 25, 15));
         bt_Delete.setVerifyInputWhenFocusTarget(false);
@@ -603,7 +623,8 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
     }//GEN-LAST:event_lbl_minimizeMouseClicked
 
     private void bt_RefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_RefreshActionPerformed
-        // TODO add your handling code here:
+        reset();
+        startSet();
     }//GEN-LAST:event_bt_RefreshActionPerformed
 
 
@@ -617,8 +638,10 @@ public class dashboard_utama extends javax.swing.JFrame implements DocumentListe
     private javax.swing.JButton bt_Refresh;
     private javax.swing.JButton bt_ToLaporan;
     private javax.swing.JButton bt_Update;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
