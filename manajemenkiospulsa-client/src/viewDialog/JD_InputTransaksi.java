@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import viewForm.dashboard_utama;
 
 /**
  *
@@ -37,13 +42,19 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
     private final autoNumber_DAO aN_DAO;
     private final transaksi_DAO t_DAO;
     
+    
+    SpinnerDateModel dateModel;
+    JSpinner.DateEditor dateEditor;
+    
     public JD_InputTransaksi(produk_DAO p_dao, autoNumber_DAO an_dao, transaksi_DAO t_dao) {
         this.p_DAO = p_dao;
         this.aN_DAO = an_dao;
         this.t_DAO = t_dao;
         initComponents();
+        
+        
     }
-    
+   
     public void startMode(){
         try {
             numberField field = new numberField();
@@ -57,6 +68,7 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
             DateFormat formatdate = new SimpleDateFormat("yyyy-MM-dd");
                 txt_Waktu.setText(df.format(tgl));
                 lbl_Waktu.setText(formatdate.format(tgl));
+                dc_tglBayar.setDate(new Date());
                 
         } catch (RemoteException e) {
             Logger.getLogger(JD_InputTransaksi.class.getName()).log(Level.SEVERE, null, e);
@@ -68,7 +80,19 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
     
     public void updateMode(transaksi tr){
         lbl_Title.setText("Ubah Data");
-        
+        btn_produkcari.setEnabled(false);
+        produkTransaksi = tr.getProduk();
+        txt_ID.setText(String.valueOf(tr.getId_transaksi()));
+        txt_Waktu.setText(String.valueOf(tr.getWaktu_trx()));
+        lbl_Waktu.setText(String.valueOf(tr.getTanggal_trx()));
+        txt_Kode.setText(String.valueOf(tr.getProduk()));
+        txt_Keterangan.setText(String.valueOf(tr.getKeterangan_produk()));
+        txt_Tujuan.setText(String.valueOf(tr.getNo_tujuan()));
+        txt_Harga.setText(String.valueOf(tr.getHarga()));
+        cb_Status.setSelectedItem(tr.getStatus_trx());
+        dc_tglBayar.setDate(tr.getTgl_bayar());
+        txt_SN.setText(tr.getNo_voucher());
+        txt_Note.setText(tr.getCatatan());
     }
     
     public boolean validasi(){
@@ -89,7 +113,7 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(rootPane, "Harga Produk Masih Kosong");
         } else if (cb_Status.getSelectedIndex()==0){
             JOptionPane.showMessageDialog(rootPane, "Status Transaksi Belum Diatur");
-        } else if (txt_TglBayar.getText().trim().isEmpty()){
+        } else if (dc_tglBayar.getDate()==null){
             JOptionPane.showMessageDialog(rootPane, "Tanggal Bayar Masih Kosong");
         } else if (txt_SN.getText().trim().isEmpty()){
             JOptionPane.showMessageDialog(rootPane, "No Serial Masih Kosong");
@@ -112,7 +136,7 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
         int harga = Integer.parseInt(txt_Harga.getText());
         tr.setHarga(harga);
         tr.setStatus_trx(cb_Status.getSelectedItem().toString());
-        tr.setTgl_bayar(txt_TglBayar.getText());
+        tr.setTgl_bayar(dc_tglBayar.getDate());
         tr.setNo_voucher(txt_SN.getText());
         tr.setCatatan(txt_Note.getText());
         return tr;
@@ -148,16 +172,15 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
         txt_Harga = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        txt_TglBayar = new javax.swing.JTextField();
         cb_Status = new javax.swing.JComboBox<>();
-        jSpinner1 = new javax.swing.JSpinner();
         jLabel10 = new javax.swing.JLabel();
         txt_SN = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         txt_Note = new javax.swing.JTextField();
         lbl_Waktu = new javax.swing.JLabel();
-        btn_cancel = new javax.swing.JButton();
+        dc_tglBayar = new com.toedter.calendar.JDateChooser();
         btn_save = new javax.swing.JButton();
+        btn_save1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setUndecorated(true);
@@ -240,9 +263,11 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
         jLabel9.setText("Tanggal Bayar");
 
         cb_Status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih", "Belum Membayar", "Telah Membayar" }));
-
-        jSpinner1.setModel(new javax.swing.SpinnerDateModel());
-        jSpinner1.setEditor(new javax.swing.JSpinner.DateEditor(jSpinner1, "dd-MM-YYYY"));
+        cb_Status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cb_StatusActionPerformed(evt);
+            }
+        });
 
         jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("No SN/Vooucher");
@@ -277,9 +302,9 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                     .addComponent(txt_Tujuan, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txt_Harga, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txt_Waktu))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel9)
                             .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -287,19 +312,16 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                             .addComponent(jLabel11))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cb_Status, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txt_SN, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel3Layout.createSequentialGroup()
-                                    .addComponent(txt_TglBayar, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(txt_Note, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(13, Short.MAX_VALUE))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(cb_Status, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(txt_Note, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txt_SN, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(dc_tglBayar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbl_Waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lbl_Waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -312,16 +334,18 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                             .addComponent(jLabel2)
                             .addComponent(jLabel4)
                             .addComponent(cb_Status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_Waktu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txt_Waktu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(dc_tglBayar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_TglBayar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9)
-                            .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(52, 52, 52)
+                        .addComponent(jLabel9)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -349,24 +373,24 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_Harga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8))
-                        .addContainerGap(20, Short.MAX_VALUE))
+                        .addContainerGap(26, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lbl_Waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())))
         );
 
-        btn_cancel.setText("BATAL");
-        btn_cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_cancelActionPerformed(evt);
-            }
-        });
-
         btn_save.setText("SIMPAN");
         btn_save.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_saveActionPerformed(evt);
+            }
+        });
+
+        btn_save1.setText("BATAL");
+        btn_save1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_save1ActionPerformed(evt);
             }
         });
 
@@ -381,8 +405,8 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(131, 131, 131)
                 .addComponent(btn_save, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(123, 123, 123)
-                .addComponent(btn_cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65)
+                .addComponent(btn_save1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -393,8 +417,8 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_save, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 12, Short.MAX_VALUE))
+                    .addComponent(btn_save1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 6, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -455,11 +479,11 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
             List<produk> pro = p_DAO.getData();
             if(! pro.isEmpty()){
                 DynamicTableModel tableModel= new DynamicTableModel(pro, produk.class);
-                JD_PilihProduk ss = new JD_PilihProduk();
+                JD_Pencarian ss = new JD_Pencarian();
                 ss.setTitle("Pencarian Produk");
                 ss.setTableModel(tableModel);
-                ss.prosesCari();
-                String putData = ss.putData();
+                ss.loadPencarian();
+                String putData = ss.ambilData();
                 if(putData != null){
                     produkTransaksi = p_DAO.getDataProduk(putData);
                     txt_Kode.setText(produkTransaksi.getKode_produk());
@@ -470,7 +494,7 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                 }
             }
         } catch (RemoteException e) {
-            Logger.getLogger(JD_PilihProduk.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JD_Pencarian.class.getName()).log(Level.SEVERE, null, e);
         }
     }//GEN-LAST:event_btn_produkcariActionPerformed
 
@@ -481,6 +505,8 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
                 try {
                     if(t_DAO.insert(trr)){
                         JOptionPane.showMessageDialog(rootPane, "Transaksi Berhasil Diproses");
+                        
+                        dispose();
                     } else{
                         JOptionPane.showMessageDialog(rootPane, "Transaksi Gagal Diproses");
                     }
@@ -491,16 +517,21 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btn_saveActionPerformed
 
-    private void btn_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelActionPerformed
-        dispose();
-    }//GEN-LAST:event_btn_cancelActionPerformed
+    private void cb_StatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cb_StatusActionPerformed
+        
+    }//GEN-LAST:event_cb_StatusActionPerformed
+
+    private void btn_save1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_save1ActionPerformed
+       dispose();
+    }//GEN-LAST:event_btn_save1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btn_cancel;
     private javax.swing.JButton btn_produkcari;
     private javax.swing.JButton btn_save;
+    private javax.swing.JButton btn_save1;
     private javax.swing.JComboBox<String> cb_Status;
+    private com.toedter.calendar.JDateChooser dc_tglBayar;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
@@ -515,7 +546,6 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JLabel lbl_Title;
     private javax.swing.JLabel lbl_Waktu;
     private javax.swing.JLabel lbl_exit1;
@@ -525,7 +555,6 @@ public class JD_InputTransaksi extends javax.swing.JDialog {
     private javax.swing.JTextField txt_Kode;
     private javax.swing.JTextField txt_Note;
     private javax.swing.JTextField txt_SN;
-    private javax.swing.JTextField txt_TglBayar;
     private javax.swing.JTextField txt_Tujuan;
     private javax.swing.JTextField txt_Waktu;
     // End of variables declaration//GEN-END:variables
